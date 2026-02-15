@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎓 Simulación visual · Etapas de la percepción</title>
+    <!-- Font Awesome 6 (iconos) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            background: linear-gradient(145deg, #f0f4fa 0%, #e6ecf5 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1.5rem;
+        }
+        .contenedor-principal {
+            max-width: 1300px;
+            width: 100%;
+            background: rgba(255,255,255,0.6);
+            backdrop-filter: blur(4px);
+            border-radius: 3.5rem 3.5rem 2.5rem 2.5rem;
+            box-shadow: 0 25px 45px -12px rgba(0,20,40,0.35);
+            padding: 2.5rem 2rem;
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+        h1 {
+            font-size: 2.4rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #0b2b4e, #1b4a7a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        h1 i {
+            background: #113955;
+            padding: 12px;
+            border-radius: 50%;
+            color: white;
+            font-size: 2rem;
+            -webkit-text-fill-color: white;
+            box-shadow: 0 10px 15px -8px #0a2a40;
+        }
+        .sub {
+            color: #2c4b6f;
+            font-weight: 400;
+            font-size: 1.2rem;
+            margin-left: 10px;
+            margin-bottom: 30px;
+            border-left: 5px solid #3a7ca5;
+            padding-left: 20px;
+        }
+        /* DIAGRAMA DE FLUJO (tarjetas conectoras) */
+        .diagrama-flujo {
+            background: #d9e3ed70;
+            border-radius: 60px;
+            padding: 2rem 1rem;
+            margin: 30px 0 25px 0;
+            box-shadow: inset 0 2px 8px rgba(255,255,255,0.8), 0 12px 20px -10px #1f3b4f30;
+        }
+        .fases-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 5px 0px;
+        }
+        .phase-card {
+            background: white;
+            padding: 1.2rem 1.8rem;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 1.2rem;
+            color: #0f3b5c;
+            box-shadow: 0 15px 25px -10px #102b3f, 0 0 0 2px #dbeafe inset;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid rgba(255,255,255,0.7);
+            min-width: 170px;
+            justify-content: center;
+        }
+        .phase-card i {
+            font-size: 1.9rem;
+            color: #256a9e;
+        }
+        .phase-card.activa {
+            background: #1f5a88;
+            color: white;
+            box-shadow: 0 20px 30px -8px #0e3e5f, 0 0 0 4px #f9d56e;
+            transform: scale(1.02);
+        }
+        .phase-card.activa i {
+            color: white;
+        }
+        .arrow {
+            font-size: 3rem;
+            font-weight: 300;
+            color: #466b88;
+            margin: 0 5px;
+            filter: drop-shadow(2px 4px 4px #00000020);
+        }
+        /* panel detalle */
+        .panel-detalle {
+            background: #fbfeff;
+            border-radius: 48px;
+            padding: 2rem 2.5rem;
+            margin: 25px 10px 10px 10px;
+            box-shadow: 0 20px 30px -10px #1d4763, inset 0 1px 6px white;
+            border: 1px solid #c5d9ed;
+            min-height: 240px;
+        }
+        .panel-detalle h2 {
+            color: #103e5c;
+            font-weight: 600;
+            border-bottom: 3px dashed #80b5da;
+            padding-bottom: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .panel-detalle p {
+            font-size: 1.2rem;
+            line-height: 1.5;
+            color: #16364d;
+            margin: 15px 0;
+        }
+        .analogia, .dato-curioso {
+            background: #e3effa;
+            border-radius: 30px;
+            padding: 12px 20px;
+            display: inline-block;
+            font-style: italic;
+            border-left: 8px solid #3079ab;
+            margin: 8px 0;
+        }
+        .grid-vias {
+            display: flex;
+            gap: 30px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .via {
+            flex: 1 1 200px;
+            background: #e2f0f9;
+            border-radius: 30px;
+            padding: 15px 25px;
+            font-weight: 500;
+            box-shadow: 0 6px 12px #b0c9dd;
+        }
+        .via.dorsal { border-left: 15px solid #b13e3e; }
+        .via.ventral { border-left: 15px solid #3e8fb1; }
+        .via h3 { margin-bottom: 10px; }
+
+        /* sección balón + movimiento */
+        .demo-balón {
+            background: #bfd9f0;
+            border-radius: 50px;
+            padding: 2rem;
+            margin: 40px 0;
+            box-shadow: 0 15px 25px #12344d40;
+        }
+        .balon-contenedor {
+            background: #aac3db;
+            border-radius: 60px;
+            height: 120px;
+            position: relative;
+            overflow: hidden;
+            border: 3px solid white;
+            margin: 25px 0;
+        }
+        .balon {
+            width: 70px;
+            height: 70px;
+            background: radial-gradient(circle at 30% 30%, #fcd34d, #b45309);
+            border-radius: 50%;
+            position: absolute;
+            bottom: 15px;
+            left: 5px;
+            box-shadow: 0 10px 0 #7b341e, 0 0 0 4px #fff8;
+            transition: left 0.1s linear;
+            /* animación se activa con clase .moviendo */
+        }
+        .balon.moviendo {
+            animation: paseBalon 5s linear forwards;
+        }
+        @keyframes paseBalon {
+            0% { left: 5px; }
+            100% { left: calc(100% - 75px); }
+        }
+        .boton-ejemplo {
+            background: #0a3f60;
+            border: none;
+            color: white;
+            font-size: 1.4rem;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 10px 0 #052536;
+            transition: 0.08s linear;
+            margin: 10px 0;
+        }
+        .boton-ejemplo:active {
+            transform: translateY(6px);
+            box-shadow: 0 4px 0 #052536;
+        }
+
+        /* rostro predictivo */
+        .predictiva {
+            background: linear-gradient(120deg, #e2d9f0, #cfdff5);
+            border-radius: 60px;
+            padding: 2rem;
+        }
+        .face-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .face-svg {
+            width: 200px;
+            height: 200px;
+            transition: filter 0.4s ease;
+            cursor: pointer;
+        }
+        .blur {
+            filter: blur(8px);
+        }
+        .face-controls {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .btn-predictivo {
+            background: #4f2d6b;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 40px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            box-shadow: 0 6px 0 #2f1942;
+            transition: 0.06s;
+            cursor: pointer;
+        }
+        .btn-predictivo:active {
+            transform: translateY(5px);
+            box-shadow: 0 1px 0 #2f1942;
+        }
+        .frase-predictiva {
+            font-size: 1.3rem;
+            background: #ffffffb0;
+            padding: 15px 25px;
+            border-radius: 60px;
+        }
+
+        footer {
+            margin-top: 30px;
+            color: #325571;
+        }
+        hr {
+            border: 2px solid white;
+            margin: 20px 0;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="contenedor-principal">
+    <h1>
+        <i class="fas fa-eye"></i> 
+        BLOQUE 2: ETAPAS DE LA PERCEPCIÓN VISUAL
+    </h1>
+    <div class="sub">Diagrama de flujo animado · Del estímulo al cerebro</div>
+
+    <!-- DIAGRAMA DE 4 FASES (interactivo) -->
+    <div class="diagrama-flujo">
+        <div class="fases-row">
+            <div class="phase-card activa" id="card-percepcion">
+                <i class="fas fa-camera-retro"></i> 1. Percepción
+            </div>
+            <span class="arrow">→</span>
+            <div class="phase-card" id="card-transformacion">
+                <i class="fas fa-bolt"></i> 2. Transformación
+            </div>
+            <span class="arrow">→</span>
+            <div class="phase-card" id="card-transmision">
+                <i class="fas fa-project-diagram"></i> 3. Transmisión
+            </div>
+            <span class="arrow">→</span>
+            <div class="phase-card" id="card-interpretacion">
+                <i class="fas fa-brain"></i> 4. Interpretación
+            </div>
+        </div>
+
+        <!-- PANEL DE DETALLE DINÁMICO (se actualiza por JS) -->
+        <div class="panel-detalle" id="panelDetalle">
+            <h2><i class="fas fa-eye"></i> Percepción (entrada física)</h2>
+            <p>🌕 <strong>Luz</strong> entra al ojo atravesando <strong>córnea, cristalino, humor acuoso y vítreo</strong>. Enfoque en la <strong>retina</strong> (pantalla sensorial).</p>
+            <div class="analogia">📷 Analogía: "El ojo funciona como la lente de una cámara que enfoca en la retina"</div>
+        </div>
+    </div>
+
+    <!-- EJEMPLO VÍAS DORSAL/VENTRAL: BALÓN EN MOVIMIENTO -->
+    <div class="demo-balón">
+        <h2 style="color:#092c44; display: flex; gap: 10px;"><i class="fas fa-futbol"></i> Vías dorsal y ventral en acción</h2>
+        <div class="balon-contenedor" id="balonContenedor">
+            <div class="balon" id="balon"></div>
+        </div>
+        <button class="boton-ejemplo" id="botonBalon"><i class="fas fa-play"></i> Ver video corto (5s)</button>
+        <p style="font-size: 1.3rem; background: #eef3f9; padding: 15px; border-radius: 50px;">
+            ⚽ ¿Identificaron <strong>QUÉ era (balón)</strong> y <strong>DÓNDE estaba</strong> (moviéndose de izquierda a derecha)? 
+            <br>→ Vía ventral (qué) + Vía dorsal (dónde) trabajan simultáneamente.
+        </p>
+    </div>
+
+    <!-- TEORÍA DE CODIFICACIÓN PREDICTIVA (rostro borroso) -->
+    <div class="predictiva">
+        <h2 style="color:#1f2c47;"><i class="fas fa-magic"></i> Teoría de codificación predictiva</h2>
+        <div class="face-container">
+            <!-- SVG de rostro sonriente (fácilmente reconocible) -->
+            <svg viewBox="0 0 100 100" class="face-svg" id="rostroSVG" width="200" height="200">
+                <circle cx="50" cy="50" r="45" fill="#F7D44A" stroke="#AB7E2E" stroke-width="2"/>
+                <circle cx="28" cy="35" r="6" fill="#222222"/>
+                <circle cx="72" cy="35" r="6" fill="#222222"/>
+                <path d="M28 65 Q50 85 72 65" stroke="#442200" stroke-width="4" fill="none" stroke-linecap="round"/>
+                <!-- dos cejas simpáticas -->
+                <path d="M20 20 L35 18" stroke="#332211" stroke-width="3" fill="none"/>
+                <path d="M80 20 L65 18" stroke="#332211" stroke-width="3" fill="none"/>
+            </svg>
+
+            <div class="face-controls">
+                <button class="btn-predictivo" id="btnToggleBlur">🔮 Aclarar imagen (predicción)</button>
+                <button class="btn-predictivo" id="btnResetBlur">🤔 Volver a borroso</button>
+            </div>
+            <div class="frase-predictiva">
+                <i class="fas fa-comment-dots"></i> 
+                "Su cerebro ya estaba prediciendo <strong>'será un rostro'</strong> incluso antes de verlo claramente."
+            </div>
+            <p style="margin-top: 15px;">👇 Prueba: el cerebro usa experiencia previa (procesamiento <em>arriba-abajo</em>).</p>
+        </div>
+    </div>
+
+    <!-- Información adicional fija (áreas V1-V5 y dato curioso) -->
+    <hr>
+    <div style="display: flex; flex-wrap: wrap; gap: 25px; justify-content: center; margin-top: 20px;">
+        <div style="background: #b5d1eb; border-radius: 30px; padding: 20px; flex: 2 1 300px;">
+            <h3><i class="fas fa-map-signs"></i> Áreas visuales especializadas (V1–V5)</h3>
+            <p>V1: visión general · V2: estereoscópica (3D) · V3: profundidad · V4: color · V5: movimiento</p>
+            <div class="grid-vias">
+                <div class="via dorsal">
+                    <h3>⬆️ Vía dorsal (parietal)</h3>
+                    <p><strong>"¿DÓNDE?"</strong> · localización espacial, movimiento</p>
+                </div>
+                <div class="via ventral">
+                    <h3>⬇️ Vía ventral (temporal)</h3>
+                    <p><strong>"¿QUÉ?"</strong> · reconocimiento, identidad</p>
+                </div>
+            </div>
+        </div>
+        <div style="background: #c3ddf5; border-radius: 30px; padding: 20px; flex: 1 1 220px;">
+            <i class="fas fa-stopwatch" style="font-size: 2.5rem;"></i>
+            <h3>⚡ Dato curioso</h3>
+            <p style="font-size: 1.4rem;">Nervio óptico transmite a <strong>150 m/s</strong></p>
+            <p>¡Más rápido que un coche de F1!</p>
+        </div>
+    </div>
+    <footer>🧠 Simulación docente · Basado en modelo de 4 fases (clinicabaviera) y codificación predictiva.</footer>
+</div>
+
+<script>
+    (function() {
+        // 1. MANEJO DE TARJETAS (fases) y panel de detalle
+        const cards = {
+            percepcion: document.getElementById('card-percepcion'),
+            transformacion: document.getElementById('card-transformacion'),
+            transmision: document.getElementById('card-transmision'),
+            interpretacion: document.getElementById('card-interpretacion')
+        };
+        const panel = document.getElementById('panelDetalle');
+
+        // Contenido detallado para cada fase
+        const detalles = {
+            percepcion: `
+                <h2><i class="fas fa-camera-retro"></i> Percepción (entrada física)</h2>
+                <p>🌕 <strong>Luz</strong> entra al ojo: córnea, cristalino, humor acuoso, humor vítreo.<br>Enfoque en la <strong>retina</strong> (pantalla sensorial).</p>
+                <div class="analogia">📷 Analogía: "El ojo funciona como la lente de una cámara que enfoca en la retina"</div>
+            `,
+            transformacion: `
+                <h2><i class="fas fa-bolt"></i> Transformación (conversión)</h2>
+                <p>🔦 Fotorreceptores en retina: <strong>conos</strong> (color, luz brillante) y <strong>bastones</strong> (blanco/negro, luz tenue).</p>
+                <p>⚡ La luz se convierte en <strong>impulsos nerviosos eléctricos</strong>.<br> <span style="background:#fbedb0;padding:5px 15px;border-radius:40px;">Clave: la luz deja de ser luz → SEÑAL ELÉCTRICA</span></p>
+            `,
+            transmision: `
+                <h2><i class="fas fa-project-diagram"></i> Transmisión (viaje al cerebro)</h2>
+                <p>🧠 Impulsos viajan: <strong>nervio óptico → tálamo → corteza visual primaria (V1)</strong> en lóbulos occipitales.</p>
+                <div class="dato-curioso">⚡ Dato curioso: El nervio óptico transmite información a <strong>150 m/s</strong> (velocidad de un fórmula 1).</div>
+            `,
+            interpretacion: `
+                <h2><i class="fas fa-brain"></i> Interpretación (procesamiento complejo)</h2>
+                <p>Áreas visuales especializadas:<br> <strong>V1</strong> (general) · <strong>V2</strong> (3D) · <strong>V3</strong> (profundidad) · <strong>V4</strong> (color) · <strong>V5</strong> (movimiento).</p>
+                <div class="grid-vias">
+                    <div class="via dorsal">⬆️ <strong>Vía dorsal (parietal)</strong> — "¿DÓNDE?" localización, movimiento</div>
+                    <div class="via ventral">⬇️ <strong>Vía ventral (temporal)</strong> — "¿QUÉ?" reconocimiento</div>
+                </div>
+                <p style="margin-top:15px;">👆 <em>Ejemplo del balón: ambas vías actúan a la vez.</em></p>
+            `
+        };
+
+        function activarTarjeta(idActivo) {
+            // Quitar clase activa de todas
+            Object.values(cards).forEach(c => c.classList.remove('activa'));
+            // Poner clase activa a la seleccionada
+            if (cards[idActivo]) cards[idActivo].classList.add('activa');
+            // Actualizar panel
+            panel.innerHTML = detalles[idActivo];
+        }
+
+        // Asignar eventos clic
+        cards.percepcion.addEventListener('click', () => activarTarjeta('percepcion'));
+        cards.transformacion.addEventListener('click', () => activarTarjeta('transformacion'));
+        cards.transmision.addEventListener('click', () => activarTarjeta('transmision'));
+        cards.interpretacion.addEventListener('click', () => activarTarjeta('interpretacion'));
+
+        // 2. SIMULACIÓN BALÓN (video corto 5s)
+        const balon = document.getElementById('balon');
+        const botonBalon = document.getElementById('botonBalon');
+        let animacionActiva = false;
+
+        botonBalon.addEventListener('click', function() {
+            if (animacionActiva) return; // evitar múltiples
+            animacionActiva = true;
+            balon.classList.add('moviendo');
+            botonBalon.disabled = true; // opcional feedback
+            botonBalon.style.opacity = 0.6;
+
+            // quitar clase después de 5s (duración animación)
+            setTimeout(() => {
+                balon.classList.remove('moviendo');
+                animacionActiva = false;
+                botonBalon.disabled = false;
+                botonBalon.style.opacity = 1;
+                // forzar reflow para resetear posición izquierda (se quita clase)
+                void balon.offsetWidth; 
+            }, 5000);
+        });
+
+        // 3. ROSTRO PREDICTIVO (borroso / nítido)
+        const rostro = document.getElementById('rostroSVG');
+        const btnToggle = document.getElementById('btnToggleBlur');
+        const btnReset = document.getElementById('btnResetBlur');
+
+        // estado inicial: borroso
+        rostro.classList.add('blur');
+
+        btnToggle.addEventListener('click', () => {
+            rostro.classList.remove('blur'); // quitar desenfoque = imagen clara
+        });
+        btnReset.addEventListener('click', () => {
+            rostro.classList.add('blur'); // volver a borroso
+        });
+
+        // opcional: hacer clic en el rostro alterna
+        rostro.addEventListener('click', () => {
+            rostro.classList.toggle('blur');
+        });
+
+        // 4. Inicializar con la fase activa por defecto (percepción) ya está en HTML,
+        // pero aseguramos que la tarjeta Percepción tenga clase activa (ya la tiene en el html)
+        // y el panel coincide. Por si acaso sincronizamos:
+        // (ya el panel tiene el contenido correcto, pero si se quiere reemplazar con JS por las dudas)
+        // No obstante el panel ya tiene el texto correcto en HTML estático; pero puede ser sustituido por el mismo:
+        // (no es necesario, pero lo dejamos consistente)
+        // Solo aseguramos que la clase activa esté en percepción.
+        // Pero ya en el html cards.percepcion tiene clase "phase-card activa". perfecto.
+        // Sin embargo, al sobreescribir con addEventListener, todo va bien.
+    })();
+</script>
+<!-- Pequeña nota: se incluye un reflow forzado para el balón en el timeout -->
+</body>
+</html>
